@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ company_name }} 온도관리{% endblock %}
+
+{% block content %}
+  <div class="wrapper" style="margin-top: 2rem;">
+    <!-- 카드 반복 -->
+    {% for item in data %}
+    <div class="card">
+      <!-- 띠지 (헤더) -->
+      <div class="card-header {% if item.status == '오프라인' %}offline-header{% endif %}" id="header-{{ item.device_name }}">
+        <div class="label" id="name-{{ item.device_name }}">{{ item.name }}</div>
+        <div class="icons">
+          <a href="/" class="card-nav-link">FRONT</a>
+          <a href="{{ url_for('detail_page', device_name=item.device_name) }}" class="card-nav-link">BORD</a>
+          <a href="/settings" class="card-nav-link">SET</a>
+        </div>
+      </div>
+
+      <!-- 본문 -->
+      <div class="card-body-dashboard">
+        <div class="temp-section">
+            <div class="temp {% if item.is_alarm %}warn{% else %}good{% endif %}" id="temp-div-{{ item.device_name }}">
+                <span id="temp-value-{{ item.device_name }}">{{ '%.1f'|format(item.temperature) if item.temperature is not none else '--' }}</span>
+                <span class="unit">℃</span>
+            </div>
+            <div class="set-temp" id="set-temp-{{ item.device_name }}">
+                설정: {{ '%.1f'|format(item.set_temp) if item.set_temp is not none else '--' }}°C
+            </div>
+        </div>
+        <div class="status-section">
+            <div class="status {% if item.is_alarm %}warn{% else %}good{% endif %}" id="status-{{ item.device_name }}">
+            {% if item.is_alarm %}WAR{% elif item.status == '정상' %}GO{% else %}OFF{% endif %}
+            </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block footer_scripts %}
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

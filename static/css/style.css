@@ -1,0 +1,268 @@
+/* style.css 파일 전체 내용 (최종 정리 버전) */
+
+/* --- 1. 기본 설정 및 색상 변수 --- */
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --card-top: #567a78;
+  --text-dim: #090909; 
+  --good: #0716f4;
+  --warn: #ff0000;
+  --cyan-accent: #567a78; 
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: #090909; 
+  font-family: 'Malgun Gothic','맑은 고딕',sans-serif;
+  background-color: #f8f9fa; /* base.html에서 이동 */
+}
+
+.wrapper {
+  max-width: 720px;
+  margin: 22px auto; 
+}
+
+/* base.html에서 이동 */
+.container {
+  max-width: 960px;
+}
+
+
+/* --- 2. 상단 네비게이션 및 로고 --- */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.topbar .brand-left {
+  font-weight: 700;
+  font-size: 14.4px;
+  color: #090909;
+  transform: translateY(6px);
+}
+
+.topbar .brand-right {
+  font-size: 15px;
+  opacity: .7;
+  color: #56896a;
+}
+
+/* 회사명 로고 스타일 (디테일/대시보드 상단 로고) */
+.navbar-brand-styled {
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    font-size: 20px; /* 글자 크기를 20px로 변경 */
+    color: #f8f9fa;
+    text-decoration: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    font-weight: 700;
+}
+.navbar-brand-styled:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8); 
+}
+.navbar-brand-styled .brand-prefix {
+    font-weight: 400; 
+    opacity: 0.9;
+    margin-right: 2px;
+    color: #ffc107; 
+}
+.navbar-brand-styled .fixed-suffix {
+    font-weight: 700; 
+    color: #ffffff;  
+    margin-left: 5px; 
+    letter-spacing: 1px;
+}
+
+/* JS IOT 로고 스타일 */
+.navbar-logo-jsiot {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+.navbar-logo-jsiot:hover {
+  opacity: 0.8;
+}
+.navbar-logo-jsiot .js-part {
+  color: #00e5ff; 
+}
+.navbar.bg-dark {
+  min-height: 60px;
+}
+
+
+/* --- 3. 카드 및 상태 표시 --- */
+.card {
+  background: var(--card);
+  border-radius: 2px;
+  margin: 18px 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--cyan-accent); 
+}
+.card-header {
+  background: var(--card-top);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 22px;
+  height: 45px;
+  border-bottom: 1px solid var(--cyan-accent); 
+  color: #ffffff; 
+}
+.card-header.offline-header {
+  background: #6c757d; 
+}
+.card-header .label {
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 600;
+}
+.card-header .icons {
+  display: flex;
+  align-items: center;
+  gap: 18px; 
+}
+.card-nav-link {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #a0e4ff;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+.card-nav-link:hover {
+  color: #00e5ff;
+  transform: scale(1.05);
+  text-shadow: 0 0 6px rgba(0,229,255,0.6);
+}
+.left {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* --- 대시보드 카드 본문 레이아웃 --- */
+.card-body-dashboard {
+  display: flex;
+  flex-direction: column; /* 모바일 기본: 세로 정렬 */
+  justify-content: center;
+  align-items: center;
+  padding: 18px 22px;
+  gap: 10px; /* 세로 간격 */
+}
+
+.temp-section {
+  display: flex;
+  align-items: baseline; /* 온도와 설정온도 높이 맞춤 */
+  gap: 15px; /* 온도와 설정온도 사이 간격 */
+}
+
+.status-section {
+  margin-top: -10px; /* 상태(WAR/GO)와 온도 그룹 간의 간격 줄임 */
+}
+
+/* 화면이 576px 이상일 때 (PC, 태블릿) */
+@media (min-width: 576px) {
+  .card-body-dashboard {
+    flex-direction: row; /* 가로 정렬로 변경 */
+    justify-content: space-between; /* 양쪽 끝으로 배치 */
+    align-items: flex-start;
+    gap: 0;
+  }
+  .status-section {
+    margin-top: 10px; /* PC에서는 원래 간격으로 복원 */
+  }
+}
+
+
+/* --- 4. 온도 값 및 단위 (핵심 수정) --- */
+.temp {
+  font-weight: 800;
+  font-size: 60px;
+  line-height: 1;
+  position: relative;
+  display: flex; /* 단위와 값의 정렬을 위해 Flex 사용 */
+  align-items: baseline;
+  gap: 15px;
+}
+
+/* 💡 [대시보드용 단위] 대시보드에서는 .temp .unit만 사용됨 */
+/* 🎯 [통합] 모든 온도 단위 크기를 18px로 강제 통일 */
+/* style.css 파일: 모든 온도 단위 크기 통일 */
+
+/* style.css 파일: .unit-fixed 부분 */
+.temp .unit,
+.unit-fixed {
+    font-size: 18px !important; 
+    font-weight: 600;
+    opacity: 0.9;
+    margin-left: 3px;
+    
+    /* 💡 [핵심 수정] 수직 위치를 조정하는 속성을 line-height로 변경 */
+    /* top, transform 속성을 제거하고 line-height만 사용합니다. */
+    line-height: 50px !important; 
+    
+    /* 💡 [필수] 이전에 사용했던 transform과 position 속성은 제거합니다. */
+    /* transform: translateY(-8px); position: relative; top: 8px; 등은 제거해야 합니다. */
+    
+    display: inline-block;
+}
+
+/* 💡 [디테일 보드용 값] 단위가 분리된 현재 온도 값 크기 */
+.temp-value-fix {
+    font-size: 60px !important;
+    line-height: 1;
+    font-weight: 800;
+    display: inline-block;
+}
+
+/* 💡 [디테일 보드용 값] 설정 온도 값 크기 */
+#set-temp-value {
+    font-size: 18px !important; /* 설정 온도 값 크기 */
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* detail.html의 설정 온도 컨테이너 스타일 */
+.set-temp-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+    position: relative;
+    top: 4px;
+}
+
+.set-temp {
+  font-size: 18px;
+  color: #343a40; /* 좀 더 부드러운 검은색으로 변경 */
+  font-weight: 500;
+  white-space: nowrap;
+  margin-top: 8px; /* 현재 온도와의 간격 추가 */
+}
+
+
+/* --- 5. 상태 및 기타 --- */
+.temp.good { color: var(--good); }
+.temp.warn { color: var(--warn); }
+.status {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  margin-top: 20px;
+}
+
+.status.good { color: var(--good); }
+.status.warn { color: var(--warn); }

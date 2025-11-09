@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}설정 - {{ company_name }} 온도 모니터링{% endblock %}
+
+{% block head_scripts %}
+    <style>
+        .card-header { font-weight: bold; }
+    </style>
+{% endblock %}
+
+{% block content %}
+        <div id="alert-container"></div>
+
+        <!-- 장치 관리 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="label">장치 관리</div>
+                <div class="icons">
+                    <a href="/" class="card-nav-link">FRONT</a>
+                    <a href="{{ url_for('detail_page', device_name=devices[0].name) if devices else '/' }}" class="card-nav-link">BORD</a>
+                    <a href="/settings" class="card-nav-link">SET</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <button id="newDeviceBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#deviceModal">새 장치 추가</button>
+                <div class="table-responsive">
+                    <table id="device-table" class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>IP 주소</th>
+                                <th>포트</th>
+                                <th>ID</th>
+                                <th>알람 임계값 (°C)</th>
+                                <th>메모</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in devices %}
+                            <tr>
+                                <td>{{ device.name }}</td>
+                                <td>{{ device.ip }}</td>
+                                <td>{{ device.port }}</td>
+                                <td>{{ device.controller_id }}</td>
+                                <td>{{ device.alarm_threshold if device.alarm_threshold is not none else '' }}</td>
+                                <td>{{ device.memo or '' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary btn-edit" data-device='{{ device | tojson | e }}'>수정</button>
+                                    <button class="btn btn-sm btn-outline-info btn-test" data-device='{{ device | tojson | e }}'>테스트</button>
+                                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ device.id }}" data-name="{{ device.name }}">삭제</button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">등록된 장치가 없습니다.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pushover 알림 설정 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <div class="label">Pushover 알림 설정</div>
+                <div class="icons">
+                    <a href="/" class="card-nav-link">FRONT</a>
+                    <a href="{{ url_for('detail_page', device_name=devices[0].name) if devices else '/' }}" class="card-nav-link">BORD</a>
+                    <a href="/settings" class="card-nav-link">SET</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="pushoverSettingsForm">
+                    <div class="mb-3">
+                        <label for="pushoverApiToken" class="form-label">API Token/Key</label>
+                        <input type="text" class="form-control" id="pushoverApiToken" value="{{ pushover_config.api_token }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="pushoverUserKeys" class="form-label">User Key(s)</label>
+                        <input type="text" class="form-control" id="pushoverUserKeys" value="{{ pushover_config.user_keys | join(', ') }}">
+                        <div class="form-text">여러 명일 경우 쉼표(,)로 구분하여 입력하세요.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </form>
+            </div>
+        </div>
+
+    <!-- 장치 추가/수정 Modal -->
+    <div class="modal fade" id="deviceModal" tabindex="-1" aria-labelledby="deviceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deviceModalLabel">새 장치 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deviceForm">
+                        <input type="hidden" id="deviceId">
+                        <div class="mb-3">
+                            <label for="deviceName" class="form-label">장치 이름</label>
+                            <input type="text" class="form-control" id="deviceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="deviceIp" class="form-label">IP 주소</label>
+                            <input type="text" class="form-control" id="deviceIp" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="devicePort" class="form-label">포트</label>
+                                <input type="number" class="form-control" id="devicePort" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="deviceControllerId" class="form-label">컨트롤러 ID</label>
+                                <input type="text" class="form-control" id="deviceControllerId" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="deviceAlarmThreshold" class="form-label">알람 임계값 (°C)</label>
+                            <input type="number" step="0.1" class="form-control" id="deviceAlarmThreshold" placeholder="예: -15.0 (비워두면 알람 사용 안함)">
+                        </div>
+                        <div class="mb-3">
+                            <label for="deviceMemo" class="form-label">메모</label>
+                            <input type="text" class="form-control" id="deviceMemo" placeholder="예: 3번 냉동고 컨트롤러 (담당: 홍길동)">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}
